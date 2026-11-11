@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page-heading"><div><p class="eyebrow">PRÜFUNG</p><h1>{{ job.name }}</h1><p class="muted">Nach vermutetem Spiel gruppiert. Die Navigation bleibt serverseitig und lädt nur eine Inventarseite.</p></div><a class="button secondary" href="/jobs/{{ job.id }}">Jobdetails</a></section>
+{% for game, grouped in files|groupby("game_guess", default="Unbekanntes Spiel") %}
+<details class="card game-group" {% if loop.first %}open{% endif %}>
+  <summary><span><strong>{{ game or 'Unbekanntes Spiel' }}</strong><small>{{ grouped|length }} Datei{% if grouped|length != 1 %}en{% endif %}</small></span><span class="status {{ grouped[0].dat_status }}">{{ grouped[0].dat_status }}</span></summary>
+  <table><thead><tr><th>Pfad</th><th>Plattform</th><th>DAT</th><th>Verarbeitung</th><th>Vorgeschlagene Aktion</th></tr></thead><tbody>
+  {% for file in grouped %}<tr><td><code>{{ file.relative_path }}</code><br><small class="muted">{{ file.size_bytes }} Bytes · <span class="hash">{{ file.sha256 or '—' }}</span></small></td><td>{{ file.platform or 'unbekannt' }}</td><td>{{ file.dat_name or '—' }}{% if file.error_detail %}<br><small class="error">{{ file.error_detail }}</small>{% endif %}</td><td><span class="status {{ file.processing_status }}">{{ file.processing_status }}</span></td><td>{{ file.proposed_action }}</td></tr>{% endfor %}
+  </tbody></table>
+</details>
+{% else %}<section class="card empty">Inventur läuft oder enthält keine Dateien.</section>{% endfor %}
+<nav class="pagination" aria-label="Dateiseiten">{% if page > 1 %}<a class="button secondary" href="?page={{ page - 1 }}">← Zurück</a>{% endif %}<span>Seite {{ page }}</span>{% if files|length >= page_size %}<a class="button secondary" href="?page={{ page + 1 }}">Weiter →</a>{% endif %}</nav>
+{% endblock %}

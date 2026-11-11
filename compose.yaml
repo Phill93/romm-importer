@@ -1,0 +1,34 @@
+services:
+  romm-importer:
+    build: {context: .}
+    image: romm-importer:0.1.0
+    container_name: romm-importer
+    restart: unless-stopped
+    ports: ["30062:30062"]
+    env_file: .env
+    environment:
+      DATABASE_PATH: /appdata/importer.sqlite3
+      INCOMING_ROOT: /data/incoming
+      PROCESSING_ROOT: /data/processing
+      QUARANTINE_ROOT: /data/quarantine
+      REPORTS_ROOT: /data/reports
+      DATS_ROOT: /data/dats
+      LIBRARY_ROMS_ROOT: /data/library/roms
+      LIBRARY_BIOS_ROOT: /data/library/bios
+      IGIR_MAX_OLD_SPACE_MB: ${IGIR_MAX_OLD_SPACE_MB:-1400}
+    volumes:
+      - ${INCOMING_PATH:?set INCOMING_PATH}:/data/incoming:ro
+      - ${PROCESSING_PATH:?set PROCESSING_PATH}:/data/processing:rw
+      - ${QUARANTINE_PATH:?set QUARANTINE_PATH}:/data/quarantine:rw
+      - ${REPORTS_PATH:?set REPORTS_PATH}:/data/reports:rw
+      - ${DATS_PATH:?set DATS_PATH}:/data/dats:rw
+      - ${APPDATA_PATH:?set APPDATA_PATH}:/appdata:rw
+      - ${LIBRARY_ROMS_PATH:?set LIBRARY_ROMS_PATH}:/data/library/roms:rw
+      - ${LIBRARY_BIOS_PATH:?set LIBRARY_BIOS_PATH}:/data/library/bios:rw
+    read_only: true
+    tmpfs: ["/tmp:uid=10001,gid=10001,mode=1777"]
+    user: "10001:10001"
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    cpus: 2
+    mem_limit: 2g
