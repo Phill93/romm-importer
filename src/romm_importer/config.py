@@ -7,7 +7,10 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    # Compose and TrueNAS inject configuration as process environment variables.
+    # Do not probe a working-directory .env file at runtime: it may be a
+    # root-owned bind mount while the service intentionally runs unprivileged.
+    model_config = SettingsConfigDict(extra="ignore")
     database_path: Path = Path("/appdata/importer.sqlite3")
     incoming_root: Path = Path("/data/incoming")
     processing_root: Path = Path("/data/processing")
