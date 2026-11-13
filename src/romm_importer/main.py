@@ -8,6 +8,7 @@ from collections.abc import AsyncIterator
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import asynccontextmanager
 from datetime import UTC, datetime
+from pathlib import Path
 from secrets import compare_digest, token_urlsafe
 from typing import Any
 from uuid import uuid4
@@ -56,6 +57,8 @@ from .services.inventory import (
     seed_rules,
 )
 
+PACKAGE_ROOT = Path(__file__).resolve().parent
+
 
 def create_app(settings: Settings | None = None) -> FastAPI:
     settings = settings or get_settings()
@@ -99,10 +102,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         same_site="strict",
         session_cookie="romm_importer_session",
     )
-    app.mount(
-        "/static", StaticFiles(directory="src/romm_importer/static"), name="static"
-    )
-    templates = Jinja2Templates(directory="src/romm_importer/templates")
+    app.mount("/static", StaticFiles(directory=PACKAGE_ROOT / "static"), name="static")
+    templates = Jinja2Templates(directory=PACKAGE_ROOT / "templates")
     (
         app.state.factory,
         app.state.worker,
